@@ -21,7 +21,7 @@ $jkSettings = array(
 add_action( 'init', 'jkcomic_create_comic_type' );
 function jkcomic_create_comic_type() {
     global $jkSettings;
-    register_post_type( 'jkcomic',
+    register_post_type( $jkSettings['comicName'],
         array(
             'labels' => array(
                 'name' => __( $jkSettings['comicPlural'] ),
