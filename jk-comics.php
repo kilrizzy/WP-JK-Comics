@@ -131,7 +131,7 @@ function jkcomics_import_comic_from_file($file){
         $post = new Post();
         $post->type = 'jkcomic';
         $post->title = $comic_title;
-        $post->setDate($comic_date['y'].'-'.$comic_date['m'].$comic_date['d']);
+        $post->setDate($comic_date['y'].'-'.$comic_date['m'].'-'.$comic_date['d']);
         $existingPage = $post->insert();
         print_r($existingPage);
     }
