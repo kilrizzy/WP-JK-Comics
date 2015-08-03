@@ -109,7 +109,6 @@ function jkcomics_import_comic_from_file($file){
     $output = array();
     $output[] = $file;
     //$output[] = $file;
-    //see if comic exists
     $fileWithoutExtension = preg_replace('/\\.[^.\\s]{3,4}$/', '', $file);
     $post_filename_parts = explode('_',$fileWithoutExtension);
     if(count($post_filename_parts) != 2){
@@ -119,10 +118,23 @@ function jkcomics_import_comic_from_file($file){
     $comic_date = array('y'=>'','m'=>'','d'=>'');
     $comic_date['y'] = $post_filename_parts[0];
     $comic_date['m'] = substr($post_filename_parts[1], 0, -2);
+    $comic_date['m'] = sprintf('%02d', $comic_date['m']);
     $comic_date['d'] = substr($post_filename_parts[1], -2);
-    //
-    //
-    $output[] = print_r($comic_date,true);
+    $comic_date['d'] = sprintf('%02d', $comic_date['d']);
+    $comic_title = $comic_date['m'].'-'.$comic_date['d'].'-'.$comic_date['y'];
+    //see if comic exists
+    $existingPage = get_page_by_title( $comic_title, 'OBJECT', 'jkcomic' );
+    if($existingPage){
+        $output[] = $comic_title.' post exists';
+    }else{
+        $output[] = $comic_title.' post does not exist';
+        $post = new Post();
+        $post->type = 'jkcomic';
+        $post->title = $comic_title;
+        $post->setDate($comic_date['y'].'-'.$comic_date['m'].$comic_date['d']);
+        $existingPage = $post->insert();
+        print_r($existingPage);
+    }
     //return
     return implode("\n", $output);
 }
