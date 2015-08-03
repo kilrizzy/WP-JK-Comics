@@ -133,7 +133,10 @@ function jkcomics_import_comic_from_file($file){
         $post->title = $comic_title;
         $post->setDate($comic_date['y'].'-'.$comic_date['m'].'-'.$comic_date['d']);
         $existingPage = $post->insert();
-        print_r($existingPage);
+    }
+    if($existingPage) {
+        //Attach taxonomy
+        //Attach image
     }
     //return
     return implode("\n", $output);
