@@ -56,7 +56,73 @@ function jkcomics_import_page() {
     if ( !current_user_can( 'manage_options' ) )  {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
-    echo '<div class="wrap">';
-    echo '<p>Here is where the form would go if I actually had options.</p>';
-    echo '</div>';
+    $output = array();
+
+    //get all comic_types
+    $terms = get_terms('comic_types', array('hide_empty'=>false));
+
+    //post import
+    if(!empty($_POST['path'])){
+        $path = $_POST['path'];
+        $categoryId = $_POST['category'];
+        //scan directory
+        if (file_exists($path)) {
+            $output[] = '<p><code>Directory Found...scanning files</code></p>';
+            $files = array();
+            $dh = opendir($path);
+            while (false !== ($filename = readdir($dh))) {
+                $files[] = $filename;
+            }
+            foreach($files as $file){
+                if(strstr($file,'.gif')){
+                    //import this as a post if the date does not exist
+                    $output[] = '<p><code>'.jkcomics_import_comic_from_file($file).'</code></p>';
+                }
+            }
+            //mkdir("folder/" . $dirname, 0777);
+            //echo "The directory $dirname was successfully created.";
+        } else {
+            $output[] = '<p><strong>Path does not exist</strong></p>';
+        }
+    }
+
+    //output
+    //-form
+    $output[] = '<div class="wrap">';
+    $output[] = '<form method="post">';
+    $output[] = '<input type="text" name="path" value="" />';
+    $output[] = '<select name="category">';
+    foreach($terms as $term){
+        $output[] = '<option value="'.$term->term_id.'">'.$term->name.'</option>';
+    }
+    $output[] = '</select>';
+    $output[] = '<input type="submit" value="Import" />';
+    $output[] = '</form>';
+    $output[] = '</div>';
+    //-import response
+    //
+    $output = implode("\n", $output);
+    echo $output;
+}
+
+function jkcomics_import_comic_from_file($file){
+    $output = array();
+    $output[] = $file;
+    //$output[] = $file;
+    //see if comic exists
+    $fileWithoutExtension = preg_replace('/\\.[^.\\s]{3,4}$/', '', $file);
+    $post_filename_parts = explode('_',$fileWithoutExtension);
+    if(count($post_filename_parts) != 2){
+        $output[] = 'file error';
+        return implode("\n", $output);
+    }
+    $comic_date = array('y'=>'','m'=>'','d'=>'');
+    $comic_date['y'] = $post_filename_parts[0];
+    $comic_date['m'] = substr($post_filename_parts[1], 0, -2);
+    $comic_date['d'] = substr($post_filename_parts[1], -2);
+    //
+    //
+    $output[] = print_r($comic_date,true);
+    //return
+    return implode("\n", $output);
 }
