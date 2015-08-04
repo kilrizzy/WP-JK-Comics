@@ -76,7 +76,7 @@ function jkcomics_import_page() {
             foreach($files as $file){
                 if(strstr($file,'.gif')){
                     //import this as a post if the date does not exist
-                    $output[] = '<p><code>'.jkcomics_import_comic_from_file($file).'</code></p>';
+                    $output[] = '<p><code>'.jkcomics_import_comic_from_file($file, $categoryId, $path).'</code></p>';
                 }
             }
             //mkdir("folder/" . $dirname, 0777);
@@ -105,9 +105,10 @@ function jkcomics_import_page() {
     echo $output;
 }
 
-function jkcomics_import_comic_from_file($file){
+function jkcomics_import_comic_from_file($file, $categoryId, $path){
     $output = array();
-    $output[] = $file;
+    $fullFilePath = $path.'/'.$file;
+    $output[] = $fullFilePath;
     //$output[] = $file;
     $fileWithoutExtension = preg_replace('/\\.[^.\\s]{3,4}$/', '', $file);
     $post_filename_parts = explode('_',$fileWithoutExtension);
@@ -136,7 +137,14 @@ function jkcomics_import_comic_from_file($file){
     }
     if($existingPage) {
         //Attach taxonomy
+        wp_set_post_terms( $existingPage->ID, array($categoryId), 'comic_types' );
         //Attach image
+        $existingAttachmentId = get_post_meta( $existingPage->ID, '_thumbnail_id', true );
+        $output[] = '<br/>'.$existingAttachmentId.'<br/>';
+        if(empty($existingAttachmentId)) {
+            $attachment = new Attachment();
+            $output[] = $attachment->uploadFeaturedImage($fullFilePath,$existingPage->ID);
+        }
     }
     //return
     return implode("\n", $output);
