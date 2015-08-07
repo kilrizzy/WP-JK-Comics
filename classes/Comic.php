@@ -5,9 +5,26 @@ class Comic{
     public $title;
     public $date;
     public $imageURL;
-    public $nextURL;
-    public $backURL;
-    public $post=false;
+    public $post;
+
+    public function __construct($post=false){
+        if($post){
+            $this->post = $post;
+            $this->setupFromPost();
+        }
+    }
+
+    public function setupFromPost(){
+        $this->id = $this->post->ID;
+        $this->title = $this->post->post_title;
+        $this->date = $this->post->post_date;
+        $this->url = get_post_permalink($this->id);
+        $this->thumbId = get_post_thumbnail_id( $this->id );
+        $imageURLParts = wp_get_attachment_image_src( get_post_thumbnail_id( $this->id ), 'single-post-thumbnail' );
+        if($imageURLParts){
+            $this->imageURL = $imageURLParts[0];
+        }
+    }
 
     public function getMostRecent(){
         $args = array(
@@ -17,24 +34,40 @@ class Comic{
         $query = new WP_Query( $args );
         if ( $query->have_posts() ) {
             $this->post = $query->posts[0];
-            $this->id = $this->post->ID;
-            $this->title = $this->post->post_title;
-            $this->date = $this->post->post_date;
-            $this->thumbId = get_post_thumbnail_id( $this->id );
-            $imageURLParts = wp_get_attachment_image_src( get_post_thumbnail_id( $this->id ), 'single-post-thumbnail' );
-            if($imageURLParts){
-                $this->imageURL = $imageURLParts[0];
-            }
-            //Next / Back links - get_previous_posts...won't work here. We need custom fun. Womp Womp
-            $this->nextURL = $this->getNextURL();
-
+            $this->setupFromPost();
         }
     }
 
     public function getNextURL(){
-        $comics = self::getAll();
-        print_r($comics);
-        //loop and get next
+        $comics = self::getAll(array('orderby'=>'date','order'=>'ASC'));
+        $nextComicURL = false;
+        $triggerNext = false;
+        foreach($comics as $comic){
+            if($triggerNext){
+                $nextComicURL = $comic->url;
+                $triggerNext = false;
+            }
+            if($comic->id == $this->id){
+                $triggerNext = true;
+            }
+        }
+        return $nextComicURL;
+    }
+
+    public function getPrevURL(){
+        $comics = self::getAll(array('orderby'=>'date','order'=>'DESC'));
+        $ComicURL = false;
+        $triggerPrev = false;
+        foreach($comics as $comic){
+            if($triggerPrev){
+                $ComicURL = $comic->url;
+                $triggerPrev = false;
+            }
+            if($comic->id == $this->id){
+                $triggerPrev = true;
+            }
+        }
+        return $ComicURL;
     }
 
     public static function getAll($argOverrides=array()){
@@ -48,7 +81,7 @@ class Comic{
         if ( $query->have_posts() ) {
             while ( $query->have_posts() ) {
                 $query->the_post();
-                $posts[] = $query->post;
+                $posts[] = new Comic($query->post);
             }
         }
         return $posts;

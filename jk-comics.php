@@ -36,24 +36,13 @@ function jkcomics_display_comic( $atts ) {
         'bar' => 'something else',
     ), $atts );
     $output = array();
-
+    //
     $comic = new Comic();
     $comic->getMostRecent();
-    $output[] = print_r($comic,true);
-
-    ob_start();
-    include(__DIR__.'/templates/comic.php');
-    $string = ob_get_contents();
-    ob_end_clean();
-
-    $output[] = $string;
-
-    $output[] = '<div class="comic-container">';
-        $output[] = '<div class="comic">';
-        $output[] = 'comic';
-        $output[] = '</div>';
-        $output[] = '<div class="comic-pager"></div>';
-	$output[] = '</div>';
+    //
+    $comicTemplate = new Template();
+    $comicTemplateResponse = $comicTemplate->get(__DIR__.'/templates/comic.php',array('comic'=>$comic));
+    $output[] = $comicTemplateResponse;
 
     $output = implode("\n",$output);
     return $output;
