@@ -19,7 +19,6 @@ if(!class_exists('Comic')){
 $wpDeveloper = new WPDeveloper();
 $wpDeveloper->verify();
 
-//Create Post Type
 add_action( 'init', 'jkcomics_init' );
 function jkcomics_init(){
     jkcomics_create_comic_post_type();
