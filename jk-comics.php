@@ -32,13 +32,17 @@ function jkcomics_init(){
 
 function jkcomics_display_comic( $atts ) {
     $a = shortcode_atts( array(
-        'foo' => 'something',
+        'id' => false,
         'bar' => 'something else',
     ), $atts );
     $output = array();
     //
     $comic = new Comic();
-    $comic->getMostRecent();
+    if(!$a['id']){
+        $comic->getMostRecent();
+    }else{
+        $comic->getByPostId($a['id']);
+    }
     //
     $comicTemplate = new Template();
     $comicTemplateResponse = $comicTemplate->get(__DIR__.'/templates/comic.php',array('comic'=>$comic));

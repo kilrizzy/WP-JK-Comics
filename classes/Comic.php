@@ -38,6 +38,19 @@ class Comic{
         }
     }
 
+    public function getByPostId($id){
+        $args = array(
+            'post_type' => 'jkcomic',
+            'posts_per_page' => '1',
+            'p' => $id
+        );
+        $query = new WP_Query( $args );
+        if ( $query->have_posts() ) {
+            $this->post = $query->posts[0];
+            $this->setupFromPost();
+        }
+    }
+
     public function getNextURL(){
         $comics = self::getAll(array('orderby'=>'date','order'=>'ASC'));
         $nextComicURL = false;
