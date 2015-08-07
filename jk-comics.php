@@ -11,7 +11,10 @@
 
 //Require JK PostDeveloper
 if(!class_exists('WPDeveloper')){
-    require_once( 'classes/WPDeveloper.php' );
+    require_once __DIR__.'/classes/WPDeveloper.php';
+}
+if(!class_exists('Comic')){
+    require_once __DIR__.'/classes/Comic.php';
 }
 $wpDeveloper = new WPDeveloper();
 $wpDeveloper->verify();
@@ -23,7 +26,39 @@ function jkcomics_init(){
     jkcomics_create_comic_type_taxonomy();
     //Admin Page
     add_action( 'admin_menu', 'jkcomics_plugin_menu' );
+    //Shortcodes
+    add_shortcode( 'comic', 'jkcomics_display_comic' );
 }
+
+function jkcomics_display_comic( $atts ) {
+    $a = shortcode_atts( array(
+        'foo' => 'something',
+        'bar' => 'something else',
+    ), $atts );
+    $output = array();
+
+    $comic = new Comic();
+    $comic->getMostRecent();
+    $output[] = print_r($comic,true);
+
+    ob_start();
+    include(__DIR__.'/templates/comic.php');
+    $string = ob_get_contents();
+    ob_end_clean();
+
+    $output[] = $string;
+
+    $output[] = '<div class="comic-container">';
+        $output[] = '<div class="comic">';
+        $output[] = 'comic';
+        $output[] = '</div>';
+        $output[] = '<div class="comic-pager"></div>';
+	$output[] = '</div>';
+
+    $output = implode("\n",$output);
+    return $output;
+}
+
 
 function jkcomics_create_comic_post_type(){
     $postType = new PostType();
