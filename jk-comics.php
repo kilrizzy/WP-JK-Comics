@@ -28,12 +28,17 @@ function jkcomics_init(){
     //Shortcodes
     add_shortcode( 'comic', 'jkcomics_display_comic' );
     add_shortcode( 'comic-selector', 'jkcomics_display_comic_selector' );
+    //Scripts
+    add_action( 'wp_enqueue_scripts', 'jkcomics_scripts' );
 }
-
+function jkcomics_scripts(){
+    wp_enqueue_script( 'comic-selector', plugins_url( 'js/comic-selector.js', __FILE__ ) , array('jquery') );
+}
 function jkcomics_display_comic_selector($atts){
     $a = shortcode_atts( array(
         'cat' => false,
     ), $atts );
+    //
     $output = array();
     //
     $args = array();
