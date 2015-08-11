@@ -27,6 +27,35 @@ function jkcomics_init(){
     add_action( 'admin_menu', 'jkcomics_plugin_menu' );
     //Shortcodes
     add_shortcode( 'comic', 'jkcomics_display_comic' );
+    add_shortcode( 'comic-selector', 'jkcomics_display_comic_selector' );
+}
+
+function jkcomics_display_comic_selector($atts){
+    $a = shortcode_atts( array(
+        'cat' => false,
+    ), $atts );
+    $output = array();
+    //
+    $args = array();
+    $args['orderby'] = 'date';
+    $args['order'] = 'ASC';
+    $term = false;
+    if($a['cat']){
+        $term = get_term_by('slug', $a['cat'], 'comic_types');
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'comic_types',
+                'field'    => 'slug',
+                'terms'    => $a['cat'],
+            ),
+        );
+    }
+    $comics = Comic::getAll($args);
+    $template = new Template();
+    $templateResponse = $template->get(__DIR__.'/templates/comic-selector.php',array('comics'=>$comics, 'term'=>$term));
+    $output[] = $templateResponse;
+    $output = implode("\n",$output);
+    return $output;
 }
 
 function jkcomics_display_comic( $atts ) {
@@ -43,9 +72,9 @@ function jkcomics_display_comic( $atts ) {
         $comic->getByPostId($a['id']);
     }
     //
-    $comicTemplate = new Template();
-    $comicTemplateResponse = $comicTemplate->get(__DIR__.'/templates/comic.php',array('comic'=>$comic));
-    $output[] = $comicTemplateResponse;
+    $template = new Template();
+    $templateResponse = $template->get(__DIR__.'/templates/comic.php',array('comic'=>$comic));
+    $output[] = $templateResponse;
 
     $output = implode("\n",$output);
     return $output;
