@@ -4,6 +4,7 @@ class Comic{
     public $id;
     public $title;
     public $date;
+    public $url;
     public $imageURL;
     public $post;
 

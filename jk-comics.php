@@ -77,8 +77,10 @@ function jkcomics_display_comic( $atts ) {
         $comic->getByPostId($a['id']);
     }
     //
+    $categories = get_terms('comic_types');
+    //
     $template = new Template();
-    $templateResponse = $template->get(__DIR__.'/templates/comic.php',array('comic'=>$comic));
+    $templateResponse = $template->get(__DIR__.'/templates/comic.php',array('comic'=>$comic, 'categories'=>$categories));
     $output[] = $templateResponse;
 
     $output = implode("\n",$output);
