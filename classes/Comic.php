@@ -7,6 +7,7 @@ class Comic{
     public $url;
     public $imageURL;
     public $post;
+    public $content;
 
     public function __construct($post=false){
         if($post){
@@ -21,6 +22,7 @@ class Comic{
         $this->date = $this->post->post_date;
         $this->url = get_post_permalink($this->id);
         $this->thumbId = get_post_thumbnail_id( $this->id );
+        $this->content = apply_filters('the_content',$this->post->post_content);
         $imageURLParts = wp_get_attachment_image_src( get_post_thumbnail_id( $this->id ), 'single-post-thumbnail' );
         if($imageURLParts){
             $this->imageURL = $imageURLParts[0];

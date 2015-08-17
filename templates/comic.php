@@ -36,4 +36,9 @@
         <img src="<?php echo $comic->imageURL; ?>" class="img-responsive" />
         <?php } ?>
     </div>
+    <?php if(!empty($comic->content)){ ?>
+    <div class="comic-content">
+        <?php echo $comic->content; ?>
+    </div>
+    <?php } ?>
 </div>

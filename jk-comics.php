@@ -97,6 +97,12 @@ function jkcomics_create_comic_post_type(){
     $postType->excerptTitle = 'Description';
     $postType->excerptHelp = 'Comic Alt Text / Description';
     $postType->iconCSSContent = '\f161';
+    $postType->supports = array(
+        'title',
+        'editor',
+        'thumbnail',
+        'page-attributes'
+    );
     $postType->create();
 }
 
